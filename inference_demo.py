@@ -93,7 +93,7 @@ effvit = create_seg_model(
     dataset="cityscapes",
     pretrained=True,
     weight_url="assets/checkpoints/seg/cityscapes/b3.pt"
-)
+).eval()
 
 # run inference
 segment(fcn, imgname)
