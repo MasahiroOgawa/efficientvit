@@ -1,3 +1,4 @@
+from efficientvit.seg_model_zoo import create_seg_model
 import time
 import numpy as np
 import torchvision.transforms as T
@@ -77,21 +78,28 @@ def infer_time(net, path=imgname, dev='cuda'):
     return et - st
 
 
+def calc_ave_time(net, avg_over=10):
+    infer_time_list = [infer_time(net) for _ in range(avg_over)]
+    infer_time_avg = sum(infer_time_list) / avg_over
+    print('The Average Inference time on {} is: {:.3f}s'.format(
+        net.__class__.__name__, infer_time_avg))
+
+
 # load models
 fcn = models.segmentation.fcn_resnet101(pretrained=True).eval()
 dlab = models.segmentation.deeplabv3_resnet101(pretrained=1).eval()
+effvit = create_seg_model(
+    name="b3",
+    dataset="cityscapes",
+    pretrained=True,
+    weight_url="assets/checkpoints/seg/cityscapes/b3.pt"
+)
 
 # run inference
 segment(fcn, imgname)
 segment(dlab, imgname)
+# segment(effvit, imgname)
 
 # calculate computation time On CUDA
-avg_over = 10
-fcn_infer_time_list_gpu = [infer_time(fcn) for _ in range(avg_over)]
-fcn_infer_time_avg_gpu = sum(fcn_infer_time_list_gpu) / avg_over
-dlab_infer_time_list_gpu = [infer_time(dlab) for _ in range(avg_over)]
-dlab_infer_time_avg_gpu = sum(dlab_infer_time_list_gpu) / avg_over
-print('The Average Inference time on FCN is:     {:.3f}s'.format(
-    fcn_infer_time_avg_gpu))
-print('The Average Inference time on DeepLab is: {:.3f}s'.format(
-    dlab_infer_time_avg_gpu))
+calc_ave_time(fcn)
+calc_ave_time(dlab)
