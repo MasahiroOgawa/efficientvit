@@ -40,14 +40,14 @@ def decode_segmap(image, nc=21):
     return rgb
 
 
-def segment(net, path, show_orig=True, dev='cuda'):
+def segment(net, path, show_orig=True, dev='cuda', size=640):
     img = Image.open(path)
     if show_orig:
         plt.imshow(img)
         plt.axis('off')
         plt.show()
     # Comment the Resize and CenterCrop for better inference results
-    trf = T.Compose([T.Resize(640),
+    trf = T.Compose([T.Resize(size),
                      # T.CenterCrop(224),
                      T.ToTensor(),
                      T.Normalize(mean=[0.485, 0.456, 0.406],
@@ -61,10 +61,10 @@ def segment(net, path, show_orig=True, dev='cuda'):
     plt.show()
 
 
-def infer_time(net, path=imgname, dev='cuda'):
+def infer_time(net, path=imgname, dev='cuda', size=224):
     img = Image.open(path)
-    trf = T.Compose([T.Resize(256),
-                     T.CenterCrop(224),
+    trf = T.Compose([T.Resize(size),
+                    #  T.CenterCrop(224),
                      T.ToTensor(),
                      T.Normalize(mean=[0.485, 0.456, 0.406],
                                  std=[0.229, 0.224, 0.225])])
@@ -89,10 +89,10 @@ def calc_ave_time(net, avg_over=10):
 fcn = models.segmentation.fcn_resnet101(pretrained=True).eval()
 dlab = models.segmentation.deeplabv3_resnet101(pretrained=1).eval()
 effvit = create_seg_model(
-    name="b3",
+    name="b0",
     dataset="cityscapes",
     pretrained=True,
-    weight_url="assets/checkpoints/seg/cityscapes/b3.pt"
+    weight_url="assets/checkpoints/seg/cityscapes/b0.pt"
 ).eval()
 
 # run inference
